@@ -1,0 +1,57 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  admin
+  user
+}
+
+model User {
+  id          String       @id @default(uuid())
+  nombre      String
+  email       String       @unique
+  password    String
+  role        Role         @default(user)
+  testimonios Testimonio[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@map("users")
+}
+
+model Leyenda {
+  id          String       @id @default(uuid())
+  nombre      String
+  region      String
+  categoria   String
+  veracidad   Int          @default(3)
+  descripcion String
+  historia    String
+  imagen      String
+  testimonios Testimonio[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@map("leyendas")
+}
+
+model Testimonio {
+  id                String    @id @default(uuid())
+  userId            String
+  leyendaId         String
+  lugar             String
+  descripcion       String
+  fechaAvistamiento DateTime?
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  leyenda           Leyenda   @relation(fields: [leyendaId], references: [id], onDelete: Cascade)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@map("testimonios")
+}
